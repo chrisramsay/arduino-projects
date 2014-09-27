@@ -1,0 +1,6 @@
+[submodule "libraries/dallas-temperature-control"]
+	path = libraries/dallas-temperature-control
+	url = git@github.com:milesburton/Arduino-Temperature-Control-Library.git
+[submodule "libraries/MLX90614"]
+	path = libraries/MLX90614
+	url = git@github.com:chrisramsay/MLX90614.git
