@@ -4,3 +4,6 @@
 [submodule "libraries/MLX90614"]
 	path = libraries/MLX90614
 	url = git@github.com:chrisramsay/MLX90614.git
+[submodule "libraries/arduino_uip"]
+	path = libraries/arduino_uip
+	url = git@github.com:ntruchsess/arduino_uip.git
