@@ -11,15 +11,15 @@ OneWire  oneWire(ONE_WIRE_BUS);
 
 // Probes
 // 15 cm
-DeviceAddress add1 = { 0x28, 0xC8, 0xCC, 0xBF, 0x04, 0x00, 0x00, 0xB6 };
+DeviceAddress probe_15 = { 0x28, 0xC8, 0xCC, 0xBF, 0x04, 0x00, 0x00, 0xB6 };
 // 30 cm
-DeviceAddress add2 = { 0x28, 0xBA, 0x17, 0xD0, 0x04, 0x00, 0x00, 0x64 };
+DeviceAddress probe_30 = { 0x28, 0xBA, 0x17, 0xD0, 0x04, 0x00, 0x00, 0x64 };
 // 100 cm
-DeviceAddress add3 = { 0x28, 0xE3, 0x67, 0xCE, 0x04, 0x00, 0x00, 0x9C };
+DeviceAddress probe_100 = { 0x28, 0xE3, 0x67, 0xCE, 0x04, 0x00, 0x00, 0x9C };
 // Grass
-DeviceAddress add4 = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
+DeviceAddress probe_grass = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
 // Concrete
-DeviceAddress add5 = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
+DeviceAddress probe_concrete = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
 
 // Indicator LEDs
 int led_15 = 9;
@@ -57,11 +57,11 @@ void setup(void)
   // Start up the library
   sensors.begin();
   // set the resolution to 12 bit
-  sensors.setResolution(add1, 12);
-  sensors.setResolution(add2, 12);
-  sensors.setResolution(add3, 12);
-  sensors.setResolution(add4, 12);
-  sensors.setResolution(add5, 12);
+  sensors.setResolution(probe_15, 12);
+  sensors.setResolution(probe_30, 12);
+  sensors.setResolution(probe_100, 12);
+  sensors.setResolution(probe_grass, 12);
+  sensors.setResolution(probe_concrete, 12);
 
 }
  
@@ -77,13 +77,13 @@ void loop(void)
 
   // Get temperature outside the ethernet part
   sensors.requestTemperatures();
-  t_15 = sensors.getTempC(add1);
-  t_30 = sensors.getTempC(add2);
-  t_100 = sensors.getTempC(add3);
-  t_grass = sensors.getTempC(add4);
-  t_concrete = sensors.getTempC(add5);
+  t_15 = sensors.getTempC(probe_15);
+  t_30 = sensors.getTempC(probe_30);
+  t_100 = sensors.getTempC(probe_100);
+  t_grass = sensors.getTempC(probe_grass);
+  t_concrete = sensors.getTempC(probe_concrete);
 
-  // Check lights
+  // Check lights - this maps a device to a LED
   device_check(t_15, led_15);
   device_check(t_30, led_30);
   device_check(t_100, led_100);
