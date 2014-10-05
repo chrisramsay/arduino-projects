@@ -10,14 +10,23 @@
 OneWire  oneWire(ONE_WIRE_BUS);
 
 // Probes
-DeviceAddress add1 = { 0x28, 0xD9, 0x19, 0x11, 0x05, 0x00, 0x00, 0x41 };
-DeviceAddress add2 = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
-DeviceAddress add3 = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
+// 15 cm
+DeviceAddress add1 = { 0x28, 0xC8, 0xCC, 0xBF, 0x04, 0x00, 0x00, 0xB6 };
+// 30 cm
+DeviceAddress add2 = { 0x28, 0xBA, 0x17, 0xD0, 0x04, 0x00, 0x00, 0x64 };
+// 100 cm
+DeviceAddress add3 = { 0x28, 0xE3, 0x67, 0xCE, 0x04, 0x00, 0x00, 0x9C };
+// Grass
+DeviceAddress add4 = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
+// Concrete
+DeviceAddress add5 = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
 
 // Indicator LEDs
 int led_15 = 9;
 int led_30 = 8;
 int led_100 = 7;
+int led_grass = 6;
+int led_concrete = 5;
 
 // Set up server on port 1000
 EthernetServer server = EthernetServer(1000);
@@ -34,6 +43,8 @@ void setup(void)
   pinMode(led_15, OUTPUT);
   pinMode(led_30, OUTPUT); 
   pinMode(led_100, OUTPUT);
+  pinMode(led_grass, OUTPUT); 
+  pinMode(led_concrete, OUTPUT);
 
   // Server initialisation
   uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
@@ -45,10 +56,12 @@ void setup(void)
 
   // Start up the library
   sensors.begin();
-  // set the resolution to 10 bit (good enough?)
+  // set the resolution to 12 bit
   sensors.setResolution(add1, 12);
   sensors.setResolution(add2, 12);
   sensors.setResolution(add3, 12);
+  sensors.setResolution(add4, 12);
+  sensors.setResolution(add5, 12);
 
 }
  
@@ -59,17 +72,23 @@ void loop(void)
   float t_15;
   float t_30;
   float t_100;
+  float t_grass;
+  float t_concrete;
 
   // Get temperature outside the ethernet part
   sensors.requestTemperatures();
   t_15 = sensors.getTempC(add1);
   t_30 = sensors.getTempC(add2);
   t_100 = sensors.getTempC(add3);
+  t_grass = sensors.getTempC(add4);
+  t_concrete = sensors.getTempC(add5);
 
   // Check lights
   device_check(t_15, led_15);
   device_check(t_30, led_30);
   device_check(t_100, led_100);
+  device_check(t_grass, led_grass);
+  device_check(t_concrete, led_concrete);
 
   if (EthernetClient client = server.available()) {
     while((size = client.available()) > 0) {
@@ -84,6 +103,10 @@ void loop(void)
     client.print(", ");
     client.print(t_100);
     client.print(", ");
+    client.print(t_grass);
+    client.print(", ");
+    client.print(t_concrete);
+    client.print(", ");
     client.stop();
   }
 
@@ -92,6 +115,10 @@ void loop(void)
     Serial.print(t_30);
     Serial.print(", ");
     Serial.print(t_100);
+    Serial.print(", ");
+    Serial.print(t_grass);
+    Serial.print(", ");
+    Serial.print(t_concrete);
     Serial.println(", ");
 
 }
