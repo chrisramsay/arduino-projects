@@ -20,6 +20,8 @@ DeviceAddress probe_100 = { 0x28, 0xE3, 0x67, 0xCE, 0x04, 0x00, 0x00, 0x9C };
 DeviceAddress probe_grass = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
 // Concrete
 DeviceAddress probe_concrete = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
+// Internal
+DeviceAddress probe_internal = { 0x28, 0xDB, 0xD4, 0x8C, 0x05, 0x00, 0x00, 0x9D };
 
 // Indicator LEDs
 int led_15 = 9;
@@ -62,6 +64,7 @@ void setup(void)
   sensors.setResolution(probe_100, 12);
   sensors.setResolution(probe_grass, 12);
   sensors.setResolution(probe_concrete, 12);
+  sensors.setResolution(probe_internal, 12);
 
 }
  
@@ -74,6 +77,7 @@ void loop(void)
   float t_100;
   float t_grass;
   float t_concrete;
+  float t_internal;
 
   // Get temperature outside the ethernet part
   sensors.requestTemperatures();
@@ -82,6 +86,7 @@ void loop(void)
   t_100 = sensors.getTempC(probe_100);
   t_grass = sensors.getTempC(probe_grass);
   t_concrete = sensors.getTempC(probe_concrete);
+  t_internal = sensors.getTempC(probe_internal);
 
   // Check lights - this maps a device to a LED
   device_check(t_15, led_15);
@@ -107,26 +112,13 @@ void loop(void)
     client.print(", ");
     client.print(t_concrete);
     client.print(", ");
+    client.print(t_internal);
     client.stop();
   }
-
-    Serial.print(t_15);
-    Serial.print(", ");
-    Serial.print(t_30);
-    Serial.print(", ");
-    Serial.print(t_100);
-    Serial.print(", ");
-    Serial.print(t_grass);
-    Serial.print(", ");
-    Serial.print(t_concrete);
-    Serial.println(", ");
 
 }
 
 void device_check(float t, int led) {
-#ifdef DEBUG
-  delay(1000);
-#endif
   if (t == 85.0 || t == -127.0) {
     alert(led);
   } else {
