@@ -1,5 +1,5 @@
-int pulsePin = 8;
-int led = 13;
+int pulsePin = 2;
+int led = 4;
 unsigned long lastHeartbeat = 0;
 unsigned long lastUptimeReport = 0;
 
@@ -22,10 +22,7 @@ void loop() {
     //  Serial.read();
     //}
     heartbeat("Heartbeat sent");
-    digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
-	delay(1000);               // wait for a second
-	digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
-	delay(1000); 
+
   //}
   unsigned long uptime = millis();
   if ((uptime - lastUptimeReport) >= 10000) {
@@ -35,16 +32,18 @@ void loop() {
     lastUptimeReport = (uptime - (uptime % 10000));
   }
   // delay in between loops
-  delay(100);
+  delay(500);
 }
 
 void heartbeat(String message) {
   // Sink current to drain charge from watchdog circuit
   pinMode(pulsePin, OUTPUT);
   digitalWrite(pulsePin, LOW);
+  digitalWrite(led, HIGH);
   delay(300);
   // Return to high-Z
   pinMode(pulsePin, INPUT);
+  digitalWrite(led, LOW);
   lastHeartbeat = millis();
   Serial.println(message);
 }

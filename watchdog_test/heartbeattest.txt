@@ -1,0 +1,35 @@
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:15:19
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:15:54
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:16:28
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:17:02
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:17:36
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:18:10
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:18:46
+Arduino reset
+Initial heartbeat
+Heartbeat sent
+-----------------17:19:18
+Arduino reset
+Initial heartbeat
+Heartbeat sent
