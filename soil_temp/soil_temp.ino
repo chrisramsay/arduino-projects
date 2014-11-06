@@ -29,9 +29,17 @@ int led_30 = 8;
 int led_100 = 7;
 int led_grass = 6;
 int led_concrete = 5;
+int pulsePin = 2;
+int heartbeat_led = 4;
 
 // Set up server on port 1000
 EthernetServer server = EthernetServer(1000);
+// Client object
+EthernetClient client;
+// Gateway IP
+IPAddress gw_ip(192,168,100,1);
+// This system IP
+IPAddress system_ip(192,168,100,6);
 
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
@@ -43,15 +51,14 @@ void setup(void)
 
   // Indicators
   pinMode(led_15, OUTPUT);
-  pinMode(led_30, OUTPUT); 
+  pinMode(led_30, OUTPUT);
   pinMode(led_100, OUTPUT);
-  pinMode(led_grass, OUTPUT); 
+  pinMode(led_grass, OUTPUT);
   pinMode(led_concrete, OUTPUT);
 
   // Server initialisation
   uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
-  IPAddress myIP(192,168,100,6);
-  Ethernet.begin(mac,myIP);
+  Ethernet.begin(mac,system_ip);
 
   // Start Server
   server.begin();
@@ -66,9 +73,12 @@ void setup(void)
   sensors.setResolution(probe_concrete, 12);
   sensors.setResolution(probe_internal, 12);
 
+ // Send an initial heartbeat.
+  heartbeat("Initial heartbeat");
+
 }
- 
- 
+
+
 void loop(void)
 {
   size_t size;
@@ -95,7 +105,7 @@ void loop(void)
   device_check(t_grass, led_grass);
   device_check(t_concrete, led_concrete);
 
-  if (EthernetClient client = server.available()) {
+  if (client = server.available()) {
     while((size = client.available()) > 0) {
       uint8_t* msg = (uint8_t*)malloc(size);
       size = client.read(msg,size);
@@ -116,6 +126,17 @@ void loop(void)
     client.stop();
   }
 
+  // If this is able to connect to the gateway IP then we are online
+  if (client.connect(gw_ip, 80)) {
+    Serial.println("connected");
+    // Make a HTTP request:
+    client.println("GET / HTTP/1.1");
+    // client.println("Host: www.google.com");
+    client.println("Connection: close");
+    client.println();
+    heartbeat('Client connected to ' + String(gw_ip));
+  }
+
 }
 
 void device_check(float t, int led) {
@@ -124,6 +145,19 @@ void device_check(float t, int led) {
   } else {
     ok(led);
   }
+}
+
+void heartbeat(String message) {
+  // Sink current to drain charge from watchdog circuit
+  pinMode(pulsePin, OUTPUT);
+  digitalWrite(pulsePin, LOW);
+  digitalWrite(heartbeat_led, HIGH);
+  delay(300);
+  // Return to high-Z
+  pinMode(pulsePin, INPUT);
+  digitalWrite(heartbeat_led, LOW);
+  //lastHeartbeat = millis();
+  Serial.println(message);
 }
 
 void alert(int pin)
