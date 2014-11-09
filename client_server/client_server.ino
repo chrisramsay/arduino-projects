@@ -1,29 +1,47 @@
 #include <UIPEthernet.h>
 
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; //assign arduino mac address
-byte ip[] = {192, 168, 100, 9 }; // ip in lan assigned to arduino
-byte gateway[] = {192, 168, 100, 1 }; // internet access via router
-byte subnet[] = {255, 255, 255, 0 }; //subnet mask
-EthernetServer server(84); //server port arduino server will use
+// Assign Arduino MAC address
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+// IP address for Arduino
+byte ip[] = {192, 168, 100, 9 };
+// Internet access via router
+byte gateway[] = {192, 168, 100, 1 }; 
+// Subnet mask
+byte subnet[] = {255, 255, 255, 0 };
+// Server port arduino server will use
+EthernetServer server(84);
+// Ethernet client object
 EthernetClient client;
-byte checkpoint[] = { 192, 168, 100, 2 }; // (IP) zoomkat web page server IP address
-
+// Checkpoint is IP requested for by check alive 
+byte checkpoint[] = { 192, 168, 100, 2 };
+// Pin to be pulsed for 555 keepalive
 int pulsePin = 2;
-int led = 4;
-int reset_millis = 10000;
+// Visible heartbeat
+int heartbeat_led = 4;
+// Reset time in millis
+int reset_millis = 20000;
+// Last heartbeat time
 unsigned long lastHeartbeat = 0;
+// Last uptime report
 unsigned long lastUptimeReport = 0;
-
-String readString; //used by server to capture GET request 
-
+// Uncomment for verbose output
+ #define DEBUG
+#ifdef DEBUG
+  #define DEBUG_PRINT(x)  Serial.println (x)
+#else
+  #define DEBUG_PRINT(x)
+#endif
 //////////////////////
 
 void setup(){
-
-  pinMode(led, OUTPUT);
+  // Assign hearbeat output pin as output
+  pinMode(heartbeat_led, OUTPUT);
+  // Start server
   Ethernet.begin(mac,ip,gateway,gateway,subnet); 
   server.begin();
-  Serial.begin(9600); 
+  // Start serial output
+  Serial.begin(9600);
+  DEBUG_PRINT("/\\\\\\\\\\\\\\\\/ RESET /\\\\\\\\\\\\\\\\/");
   heartbeat("Initial heartbeat");
 }
 
@@ -35,18 +53,6 @@ void loop(){
   	checkAlive();
     lastUptimeReport = (uptime - (uptime % reset_millis));
   }
-  // delay in between loops
-  delay(500);
-  // check for serial input
-  if (Serial.available() > 0) 
-  {
-    byte inChar;
-    inChar = Serial.read();
-    if(inChar == 'g')
-    {
-      checkAlive(); // call client checkAlive function
-    }
-  }  
 
   EthernetClient client = server.available();
   if (client) {
@@ -54,29 +60,11 @@ void loop(){
       if (client.available()) {
         char c = client.read();
 
-        //read char by char HTTP request
-        if (readString.length() < 100) {
-
-          //store characters to string 
-          readString += c; 
-          //Serial.print(c);
-        } 
-
         //if HTTP request has ended
         if (c == '\n') {
 
-          ///////////////
-          Serial.print(readString); //print to serial monitor for debuging 
-
-            //now output HTML data header
-          if(readString.indexOf('?') >=0) { //don't send new page
-            client.println(F("HTTP/1.1 204"));
-            client.println();
-            client.println();  
-          }
-          else {   
-            client.println("Hello, World!");
-          }
+          //now output HTML data header   
+          client.println("Hello, World!");
 
           delay(1);
           //stopping client
@@ -86,19 +74,22 @@ void loop(){
       }
     }
   }
+  // delay in between loops
+  delay(500);
 } 
 
 //////////////////////////
+
 void checkAlive() //client function to send and receive GET data from external server.
 {
   if (client.connect(checkpoint, 80)) {
-  	heartbeat("connected");
+  	heartbeat("28J60 alive");
     client.println("GET / HTTP/1.1");
     client.println();
   } 
   else {
-    Serial.println("connection failed");
-    Serial.println();
+    DEBUG_PRINT("connection failed");
+    DEBUG_PRINT();
   }
 
   while(client.connected() && !client.available()) delay(1); //waits for data
@@ -107,7 +98,7 @@ void checkAlive() //client function to send and receive GET data from external s
     Serial.print(c);
   }
 
-  Serial.println("disconnecting.");
+  DEBUG_PRINT("disconnecting.");
   client.stop();
 }
 
@@ -115,11 +106,11 @@ void heartbeat(String message) {
   // Sink current to drain charge from watchdog circuit
   pinMode(pulsePin, OUTPUT);
   digitalWrite(pulsePin, LOW);
-  digitalWrite(led, HIGH);
+  digitalWrite(heartbeat_led, HIGH);
   delay(300);
   // Return to high-Z
   pinMode(pulsePin, INPUT);
-  digitalWrite(led, LOW);
+  digitalWrite(heartbeat_led, LOW);
   lastHeartbeat = millis();
-  Serial.println(message);
+  DEBUG_PRINT(message);
 }

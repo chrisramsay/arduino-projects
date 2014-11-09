@@ -4,24 +4,46 @@
 
 // Data wire is plugged into pin 2 on the Arduino
 #define ONE_WIRE_BUS 3
-// Uncomment for verbose output
-// #define DEBUG
-
+// Assign Arduino MAC address
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+// IP address for Arduino
+byte ip[] = {192, 168, 100, 9 };
+// Internet access via router
+byte gateway[] = {192, 168, 100, 1 }; 
+// Subnet mask
+byte subnet[] = {255, 255, 255, 0 };
+// Server port arduino server will use
+EthernetServer server(84);
+// Ethernet client object
+EthernetClient client;
+// Checkpoint is IP requested for by check alive 
+byte checkpoint[] = { 192, 168, 100, 2 };
+// Pin to be pulsed for 555 keepalive
+int pulsePin = 2;
+// Visible heartbeat
+int heartbeat_led = 4;
+// Reset time in millis
+int reset_millis = 10000;
+// Last heartbeat time
+unsigned long lastHeartbeat = 0;
+// Last uptime report
+unsigned long lastUptimeReport = 0;
+// OneWire bus
 OneWire  oneWire(ONE_WIRE_BUS);
 
 // Probes
 // 15 cm
-DeviceAddress probe_15 = { 0x28, 0xC8, 0xCC, 0xBF, 0x04, 0x00, 0x00, 0xB6 };
+byte probe_15[] = { 0x28, 0xC8, 0xCC, 0xBF, 0x04, 0x00, 0x00, 0xB6 };
 // 30 cm
-DeviceAddress probe_30 = { 0x28, 0xBA, 0x17, 0xD0, 0x04, 0x00, 0x00, 0x64 };
+byte probe_30[] = { 0x28, 0xBA, 0x17, 0xD0, 0x04, 0x00, 0x00, 0x64 };
 // 100 cm
-DeviceAddress probe_100 = { 0x28, 0xE3, 0x67, 0xCE, 0x04, 0x00, 0x00, 0x9C };
+byte probe_100[] = { 0x28, 0xE3, 0x67, 0xCE, 0x04, 0x00, 0x00, 0x9C };
 // Grass
-DeviceAddress probe_grass = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
+byte probe_grass[] = { 0x28, 0xF5, 0xE4, 0x83, 0x05, 0x00, 0x00, 0x26 };
 // Concrete
-DeviceAddress probe_concrete = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
+byte probe_concrete[] = { 0x28, 0xE7, 0x17, 0x11, 0x05, 0x00, 0x00, 0x1D };
 // Internal
-DeviceAddress probe_internal = { 0x28, 0xDB, 0xD4, 0x8C, 0x05, 0x00, 0x00, 0x9D };
+byte probe_internal[] = { 0x28, 0xDB, 0xD4, 0x8C, 0x05, 0x00, 0x00, 0x9D };
 
 // Indicator LEDs
 int led_15 = 9;
@@ -29,40 +51,36 @@ int led_30 = 8;
 int led_100 = 7;
 int led_grass = 6;
 int led_concrete = 5;
-int pulsePin = 2;
-int heartbeat_led = 4;
-
-// Set up server on port 1000
-EthernetServer server = EthernetServer(1000);
-// Client object
-EthernetClient client;
-// Gateway IP
-IPAddress gw_ip(192,168,100,1);
-// This system IP
-IPAddress system_ip(192,168,100,6);
 
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
+
+// Uncomment for verbose output
+ #define DEBUG
+#ifdef DEBUG
+  #define DEBUG_PRINT(x)  Serial.println (x)
+#else
+  #define DEBUG_PRINT(x)
+#endif
+//////////////////////
 
 void setup(void)
 {
   // start serial port
   Serial.begin(9600);
-
+  // Debug message
+  DEBUG_PRINT("/\\\\\\\\\\\\\\\\/ RESET /\\\\\\\\\\\\\\\\/");
   // Indicators
   pinMode(led_15, OUTPUT);
   pinMode(led_30, OUTPUT);
   pinMode(led_100, OUTPUT);
   pinMode(led_grass, OUTPUT);
   pinMode(led_concrete, OUTPUT);
-
-  // Server initialisation
-  uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
-  Ethernet.begin(mac,system_ip);
-
-  // Start Server
+  // Assign hearbeat output pin as output
+  pinMode(heartbeat_led, OUTPUT);
+  // Start server
+  Ethernet.begin(mac,ip,gateway,gateway,subnet); 
   server.begin();
-
   // Start up the library
   sensors.begin();
   // set the resolution to 12 bit
@@ -72,12 +90,12 @@ void setup(void)
   sensors.setResolution(probe_grass, 12);
   sensors.setResolution(probe_concrete, 12);
   sensors.setResolution(probe_internal, 12);
-
- // Send an initial heartbeat.
+  // Initial hearbeat
   heartbeat("Initial heartbeat");
 
 }
 
+//////////////////////
 
 void loop(void)
 {
@@ -105,38 +123,71 @@ void loop(void)
   device_check(t_grass, led_grass);
   device_check(t_concrete, led_concrete);
 
-  if (client = server.available()) {
-    while((size = client.available()) > 0) {
-      uint8_t* msg = (uint8_t*)malloc(size);
-      size = client.read(msg,size);
-      Serial.write(msg,size);
-      free(msg);
+  // THIS PART RUNS EVERY reset_millis/1000 SECONDS
+  unsigned long uptime = millis();
+  if ((uptime - lastUptimeReport) >= reset_millis) {
+    checkAlive();
+    lastUptimeReport = (uptime - (uptime % reset_millis));
+  }
+
+  // This will output data on request
+  EthernetClient client = server.available();
+  if (client) {
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+
+        //if HTTP request has ended
+        if (c == '\n') {
+          // Output sensor data
+          client.print(t_15);
+          client.print(", ");
+          client.print(t_30);
+          client.print(", ");
+          client.print(t_100);
+          client.print(", ");
+          client.print(t_grass);
+          client.print(", ");
+          client.print(t_concrete);
+          client.print(", ");
+          client.print(t_internal);
+          client.stop();
+          // Small delay
+          delay(1);
+          //stopping client
+          client.stop();
+
+        }
+      }
     }
-    client.print(t_15);
-    client.print(", ");
-    client.print(t_30);
-    client.print(", ");
-    client.print(t_100);
-    client.print(", ");
-    client.print(t_grass);
-    client.print(", ");
-    client.print(t_concrete);
-    client.print(", ");
-    client.print(t_internal);
-    client.stop();
   }
 
-  // If this is able to connect to the gateway IP then we are online
-  if (client.connect(gw_ip, 80)) {
-    Serial.println("connected");
-    // Make a HTTP request:
+  // Small delay in between loops
+  delay(500);
+}
+
+//////////////////////////
+
+void checkAlive() //client function to send and receive GET data from external server.
+{
+  if (client.connect(checkpoint, 80)) {
+    heartbeat("connected");
     client.println("GET / HTTP/1.1");
-    // client.println("Host: www.google.com");
-    client.println("Connection: close");
     client.println();
-    heartbeat('Client connected to ' + String(gw_ip));
+  } 
+  else {
+    DEBUG_PRINT("connection failed");
+    DEBUG_PRINT();
   }
 
+  while(client.connected() && !client.available()) delay(1); //waits for data
+  while (client.connected() || client.available()) { //connected or data available
+    char c = client.read();
+    Serial.print(c);
+  }
+
+  DEBUG_PRINT("disconnecting.");
+  client.stop();
 }
 
 void device_check(float t, int led) {
@@ -156,8 +207,8 @@ void heartbeat(String message) {
   // Return to high-Z
   pinMode(pulsePin, INPUT);
   digitalWrite(heartbeat_led, LOW);
-  //lastHeartbeat = millis();
-  Serial.println(message);
+  lastHeartbeat = millis();
+  DEBUG_PRINT(message);
 }
 
 void alert(int pin)

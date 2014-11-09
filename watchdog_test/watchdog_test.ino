@@ -1,36 +1,75 @@
+#include <UIPEthernet.h>
+
 int pulsePin = 2;
 int led = 4;
 unsigned long lastHeartbeat = 0;
 unsigned long lastUptimeReport = 0;
 
+// Set up server on port 1000
+EthernetServer server = EthernetServer(1000);
+// Client object
+EthernetClient client;
+EthernetClient client2;
+
+// Gateway IP
+IPAddress gw_ip(192,168,100,1);
+// This system IP
+IPAddress system_ip(192,168,100,7);
+
 // the setup routine runs once when you press reset:
 void setup() {
+
   // initialize serial communication at 9600 bits per second:
-  Serial.begin(9600);  
+  Serial.begin(9600); 
   Serial.println("Arduino reset");
-  pinMode(led, OUTPUT); 
+  pinMode(led, OUTPUT);
+
+  // Server initialisation
+  uint8_t mac[6] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+
+  Ethernet.begin(mac,system_ip);
+
+    // Start Server
+    server.begin();
+
   // Send an initial heartbeat.
   heartbeat("Initial heartbeat");
 }
 
 // the loop routine runs over and over again forever:
 void loop() {
-  // Check for serial inputs.  If found, send heartbeat.
-  //if (Serial.available()) {
-    // Clear input buffer
-    //while (Serial.available()) {
-    //  Serial.read();
-    //}
-    heartbeat("Heartbeat sent");
 
-  //}
-  unsigned long uptime = millis();
-  if ((uptime - lastUptimeReport) >= 10000) {
-    // It has been at least 5 seconds since our last uptime report.  
-    Serial.println("Uptime: " + String((uptime - (uptime % 10000)) / 1000) + " seconds (" + String((uptime - lastHeartbeat) / 1000) + " seconds since last heartbeat)");
-    // Pretend we did it exactly on the 5 second mark so we don't start slipping.
-    lastUptimeReport = (uptime - (uptime % 10000));
-  }
+	size_t size;
+
+	if (client = server.available()) {
+
+		while((size = client.available()) > 0) {
+			uint8_t* msg = (uint8_t*)malloc(size);
+			size = client.read(msg,size);
+			Serial.write(msg,size);
+			free(msg);
+		}
+		client.print("Hello, World!");
+		client.stop();
+	}  
+
+	unsigned long uptime = millis();
+	if ((uptime - lastUptimeReport) >= 20000) {
+
+         if (client.connect(gw_ip, 80)) {
+         	Serial.println("connected");
+	        // Make a HTTP request:
+	        client.println("GET / HTTP/1.1");
+	        // client.println("Host: www.google.com");
+	        client.println("Connection: close");
+	        client.println();
+	        heartbeat('Client connected to ' + String(gw_ip));
+	        client.stop();
+	        
+	        delay(1000);
+	    }
+	    lastUptimeReport = (uptime - (uptime % 10000));
+    }
   // delay in between loops
   delay(500);
 }
