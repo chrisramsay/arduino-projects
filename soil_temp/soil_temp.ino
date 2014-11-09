@@ -7,13 +7,13 @@
 // Assign Arduino MAC address
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 // IP address for Arduino
-byte ip[] = {192, 168, 100, 9 };
+byte ip[] = {192, 168, 100, 6 };
 // Internet access via router
 byte gateway[] = {192, 168, 100, 1 }; 
 // Subnet mask
 byte subnet[] = {255, 255, 255, 0 };
 // Server port arduino server will use
-EthernetServer server(84);
+EthernetServer server(1000);
 // Ethernet client object
 EthernetClient client;
 // Checkpoint is IP requested for by check alive 
@@ -23,7 +23,7 @@ int pulsePin = 2;
 // Visible heartbeat
 int heartbeat_led = 4;
 // Reset time in millis
-int reset_millis = 10000;
+int reset_millis = 20000;
 // Last heartbeat time
 unsigned long lastHeartbeat = 0;
 // Last uptime report
@@ -171,7 +171,7 @@ void loop(void)
 void checkAlive() //client function to send and receive GET data from external server.
 {
   if (client.connect(checkpoint, 80)) {
-    heartbeat("connected");
+    heartbeat("28J60 is alive");
     client.println("GET / HTTP/1.1");
     client.println();
   } 
