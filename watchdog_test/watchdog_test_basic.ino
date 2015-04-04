@@ -22,6 +22,10 @@ void loop() {
   delay(500);
 }
 
+/**
+ * Utility function to handle heartbeat pulse generation
+ * LED and a serial message
+ */
 void heartbeat(String message) {
   // Sink current to drain charge from C2
   pinMode(pulsePin, OUTPUT);
