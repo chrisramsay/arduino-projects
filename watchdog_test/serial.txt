@@ -1,0 +1,35 @@
+Start 
+*** Arduino reset
+ <3 Initial heartbeat
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ Disconnected after 60 secs
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still�*** Arduino reset
+ <3 Initial heartbeat
+ <3 Still alive!
+*** Arduino reset
+ <3 Initial heartbeat
+ <3 Still alive!
+*** Arduino reset
+ <3 Initial heartbeat
+Reconnected after 120 secs
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+Pressed reset after 180 secs
+*** Arduino reset
+ <3 Initial heartbeat
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
+ <3 Still alive!
