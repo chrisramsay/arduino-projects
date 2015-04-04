@@ -170,7 +170,7 @@ void loop(void)
 
 void checkAlive() //client function to send and receive GET data from external server.
 {
-  if (client.connect(checkpoint, 80)) {
+  if (client.connect(checkpoint, 22)) {
     heartbeat("28J60 is alive");
     client.println("GET / HTTP/1.1");
     client.println();
@@ -190,7 +190,8 @@ void checkAlive() //client function to send and receive GET data from external s
   client.stop();
 }
 
-void device_check(float t, int led) {
+void device_check(float t, int led)
+{
   if (t == 85.0 || t == -127.0) {
     alert(led);
   } else {
@@ -198,7 +199,8 @@ void device_check(float t, int led) {
   }
 }
 
-void heartbeat(String message) {
+void heartbeat(String message)
+{
   // Sink current to drain charge from watchdog circuit
   pinMode(pulsePin, OUTPUT);
   digitalWrite(pulsePin, LOW);

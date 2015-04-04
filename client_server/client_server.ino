@@ -19,7 +19,7 @@ int pulsePin = 2;
 // Visible heartbeat
 int heartbeat_led = 4;
 // Reset time in millis
-int reset_millis = 20000;
+int reset_millis = 60000;
 // Last heartbeat time
 unsigned long lastHeartbeat = 0;
 // Last uptime report
