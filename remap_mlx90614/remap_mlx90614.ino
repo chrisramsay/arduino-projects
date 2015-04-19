@@ -3,13 +3,11 @@
 #include "i2cmaster.h"
 
 // New slave address
-byte NewMLXAddr = 0x55<<1;
-// Uncomment for an alternative non default slave address
-// byte NewMLXAddr = 0x50<<1;
+byte NewMLXAddr = 0x1B;
 
 void setup(){
   Serial.begin(9600);
-  Serial.println("Setup...");
+  Serial.println("Setup...");/**/
   // Initialise the i2c bus, enable pullups and then wait
   i2c_init();
   PORTC = (1 << PORTC4) | (1 << PORTC5);
@@ -18,8 +16,6 @@ void setup(){
   ReadAddr(0);
   // Change address to new value (NewMLXAddr);
   ChangeAddr(NewMLXAddr, 0x00);
-  // Uncomment this if you want to change address back to default value (0x5A)
-  //ChangeAddr(0x5A, 0xBE);
   // Read address bytes
   ReadAddr(0);
   Serial.println("> Cycle power NOW - you have 10 seconds");
@@ -28,11 +24,13 @@ void setup(){
   // Read temperature using default address
   ReadTemp(0);
   // Read temperature using new address
-  ReadTemp(NewMLXAddr);
+  ReadTemp(NewMLXAddr<<1);
+  Serial.println("**---DONE---**");
 }
 
 void loop(){
-    delay(1000);
+    delay(2000);
+    ReadTemp(NewMLXAddr<<1);
 }
 
 word ChangeAddr(byte NewAddr1, byte NewAddr2) {
