@@ -7,3 +7,6 @@
 [submodule "libraries/arduino_uip"]
 	path = libraries/arduino_uip
 	url = git@github.com:ntruchsess/arduino_uip.git
+[submodule "libraries/Adafruit-MLX90614-Library"]
+	path = libraries/Adafruit-MLX90614-Library
+	url = git@github.com:adafruit/Adafruit-MLX90614-Library.git

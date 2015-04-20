@@ -3,7 +3,7 @@
 #include "i2cmaster.h"
 
 // New slave address
-byte NewMLXAddr = 0x1B;
+byte NewMLXAddr = 0x2B;
 
 void setup(){
   Serial.begin(9600);
@@ -16,6 +16,8 @@ void setup(){
   ReadAddr(0);
   // Change address to new value (NewMLXAddr);
   ChangeAddr(NewMLXAddr, 0x00);
+  // Uncomment this if you want to change address back to default value (0x5A)
+  //ChangeAddr(0x5A, 0xBE);
   // Read address bytes
   ReadAddr(0);
   Serial.println("> Cycle power NOW - you have 10 seconds");
@@ -29,7 +31,7 @@ void setup(){
 }
 
 void loop(){
-    delay(2000);
+    delay(5000);
     ReadTemp(NewMLXAddr<<1);
 }
 
