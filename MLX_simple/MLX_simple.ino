@@ -6,7 +6,7 @@ Serial.begin(9600);
 Serial.println("Setup...");
 
 i2c_init(); //Initialise the i2c bus
-PORTC = (1 << PORTC4) | (1 << PORTC5);//enable pullups
+
 }
 
 void loop(){

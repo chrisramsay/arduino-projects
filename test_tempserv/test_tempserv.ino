@@ -11,7 +11,7 @@
  */
 
 #include <SPI.h>
-#include <UIPEthernet.h>
+#include <Ethernet.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -21,7 +21,7 @@
 #define MAX_DEVICES 10
 
 // comment out the next line to disable serial debug output
-#define DEBUG
+// #define DEBUG
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
@@ -43,12 +43,12 @@ device devices[MAX_DEVICES];
 // The IP address will be dependent on your local network:
 byte mac[] = { 
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-byte ip[] = {192, 168, 100, 7 };
+byte ip[] = {192, 168, 100, 10 };
 
 // Initialize the Ethernet server library
 // with the IP address and port you want to use 
 // (port 80 is default for HTTP):
-EthernetServer server(1000);
+EthernetServer server(80);
 
 
 // untility function to print a device address
@@ -64,6 +64,7 @@ void printAddress(DeviceAddress deviceAddress)
 
 
 void setup() {
+  delay( 200 );
   // Open serial communications and wait for port to open:
   // start serial port
   Serial.begin(9600);
