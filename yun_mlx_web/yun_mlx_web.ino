@@ -69,6 +69,14 @@ void tempCommand(YunClient client) {
     client.print(F("Object: "));
     client.print(readtemp(0x07)); 
   }
+  
+  if (mode == "csv") {
+    client.print(readtemp(0x06));
+    client.print(",");
+    client.print(readtemp(0x07));
+    client.print(",");
+    client.println();
+  }
 }
 
 float readtemp(int sensor) {
