@@ -61,6 +61,14 @@ void tempCommand(YunClient client) {
     client.print(F("Object: "));
     client.print(readtemp(0x07));
   }
+  
+  if (mode == "all") {
+    client.print(F("Ambient: "));
+    client.print(readtemp(0x06));
+    client.println();
+    client.print(F("Object: "));
+    client.print(readtemp(0x07)); 
+  }
 }
 
 float readtemp(int sensor) {
