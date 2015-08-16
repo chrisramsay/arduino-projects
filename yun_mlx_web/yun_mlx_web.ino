@@ -55,11 +55,13 @@ void tempCommand(YunClient client) {
   if (mode == "amb") {
     client.print(F("Ambient: "));
     client.print(readtemp(0x06));
+    client.println();
   }
 
   if (mode == "obj") {
     client.print(F("Object: "));
     client.print(readtemp(0x07));
+    client.println();
   }
   
   if (mode == "all") {
@@ -67,7 +69,8 @@ void tempCommand(YunClient client) {
     client.print(readtemp(0x06));
     client.println();
     client.print(F("Object: "));
-    client.print(readtemp(0x07)); 
+    client.print(readtemp(0x07));
+    client.println();
   }
   
   if (mode == "csv") {
