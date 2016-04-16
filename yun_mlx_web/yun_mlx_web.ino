@@ -43,27 +43,29 @@ void process(YunClient client) {
   String command = client.readStringUntil('/');
 
   // is "temp" command?
+  // Example: http://arduino.local/temp/
   if (command == "temp") {
     tempCommand(client);
   }
 }
 
 void tempCommand(YunClient client) {
-
+  // Read the command
   String mode = client.readStringUntil('\r');
-
+  // Switch on mode...
+  // Example: http://arduino.local/temp/amb
   if (mode == "amb") {
     client.print(F("Ambient: "));
     client.print(readtemp(0x06));
     client.println();
   }
-
+  // Example: http://arduino.local/temp/obj
   if (mode == "obj") {
     client.print(F("Object: "));
     client.print(readtemp(0x07));
     client.println();
   }
-  
+  // Example: http://arduino.local/temp/all
   if (mode == "all") {
     client.print(F("Ambient: "));
     client.print(readtemp(0x06));
@@ -72,7 +74,7 @@ void tempCommand(YunClient client) {
     client.print(readtemp(0x07));
     client.println();
   }
-  
+  // Example: http://arduino.local/temp/csv
   if (mode == "csv") {
     client.print(readtemp(0x06));
     client.print(",");
@@ -100,12 +102,17 @@ float readtemp(int sensor) {
   pec = i2c_readNak();
   i2c_stop();
 
-  //This converts high and low bytes together and processes temperature, MSB is a error bit and is ignored for temps
-  double tempFactor = 0.02; // 0.02 degrees per LSB (measurement resolution of the MLX90614)
-  double tempData = 0x0000; // zero out the data
-  int frac; // data past the decimal point
+  // This converts high and low bytes together and processes temperature,
+  // MSB is a error bit and is ignored for temps
+  // 0.02 degrees per LSB (measurement resolution of the MLX90614)
+  double tempFactor = 0.02;
+  // zero out the data
+  double tempData = 0x0000;
+  // data past the decimal point
+  int frac;
 
-  // This masks off the error bit of the high byte, then moves it left 8 bits and adds the low byte.
+  // This masks off the error bit of the high byte,
+  // then moves it left 8 bits and adds the low byte.
   tempData = (double)(((data_high & 0x007F) << 8) + data_low);
   return ((tempData * tempFactor) - 0.01) - 273.15;
 }

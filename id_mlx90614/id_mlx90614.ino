@@ -3,7 +3,7 @@
 /*
 
 Uno: A4 (SDA) and A5 (SCL)
-Yun: D2 (SDA) and D3 (SCL)
+Yun: D2 (SDA) and D3 (SCL) //--> this does not work with Yun
 
 */
 
