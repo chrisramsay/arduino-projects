@@ -3,7 +3,7 @@
  The webserve part of this code is taked from the example provided in the Dallas library examples
  
  How it works.
- After initial setup, the looping code fetches the tempeartures form the sensors on each pass.
+ After initial setup, the looping code fetches the temperatures form the sensors on each pass.
  When the code detect an ethernet client a page id returned containing whatever device array has stored.
  This way we never fetch the live values during a request.
  
