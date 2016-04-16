@@ -1,3 +1,6 @@
+// SDA (BLUE) goes to DIGITAL PIN 2
+// SCL (GREEN) goes to DIGITAL PIN 3
+
 #include <i2cmaster.h>
 #include <Bridge.h>
 #include <YunServer.h>
