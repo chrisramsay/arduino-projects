@@ -46,7 +46,7 @@ void process(YunClient client) {
   String command = client.readStringUntil('/');
 
   // is "temp" command?
-  // Example: http://arduino.local/temp/
+  // Example: http://arduino.local/arduino/temp/
   if (command == "temp") {
     tempCommand(client);
   }
@@ -56,19 +56,19 @@ void tempCommand(YunClient client) {
   // Read the command
   String mode = client.readStringUntil('\r');
   // Switch on mode...
-  // Example: http://arduino.local/temp/amb
+  // Example: http://arduino.local/arduino/temp/amb
   if (mode == "amb") {
     client.print(F("Ambient: "));
     client.print(readtemp(0x06));
     client.println();
   }
-  // Example: http://arduino.local/temp/obj
+  // Example: http://arduino.local/arduino/temp/obj
   if (mode == "obj") {
     client.print(F("Object: "));
     client.print(readtemp(0x07));
     client.println();
   }
-  // Example: http://arduino.local/temp/all
+  // Example: http://arduino.local/arduino/temp/all
   if (mode == "all") {
     client.print(F("Ambient: "));
     client.print(readtemp(0x06));
@@ -77,7 +77,7 @@ void tempCommand(YunClient client) {
     client.print(readtemp(0x07));
     client.println();
   }
-  // Example: http://arduino.local/temp/csv
+  // Example: http://arduino.local/arduino/temp/csv
   if (mode == "csv") {
     client.print(readtemp(0x06));
     client.print(",");
