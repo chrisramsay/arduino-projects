@@ -10,6 +10,7 @@ OneWire ds(DS18S20_Pin);
 #define DHT22_PIN 6
 #define OFF_PIN 2
 #define ON_PIN 3
+#define HYSTERESIS 2.0
 
 void setup()
 {
@@ -31,32 +32,32 @@ void loop()
   int chk = DHT.read22(DHT22_PIN);
   float dew = dewPoint(DHT.temperature, DHT.humidity);
   int heaterState = LOW;
-  
+
   switch (chk)
   {
-    case DHTLIB_OK:  
-		Serial.print("OK,\t"); 
-		break;
-    case DHTLIB_ERROR_CHECKSUM: 
-		Serial.print("Checksum error,\t"); 
-		break;
-    case DHTLIB_ERROR_TIMEOUT: 
-		Serial.print("Time out error,\t"); 
-		break;
-    default: 
-		Serial.print("Unknown error,\t"); 
-		break;
+    case DHTLIB_OK:
+      Serial.print("OK,\t");
+      break;
+    case DHTLIB_ERROR_CHECKSUM:
+      Serial.print("Checksum error,\t");
+      break;
+    case DHTLIB_ERROR_TIMEOUT:
+      Serial.print("Time out error,\t");
+      break;
+    default:
+      Serial.print("Unknown error,\t");
+      break;
   }
   // Control heater state
-    if (dew > temperature - 2.0) {
-      heaterState = HIGH;
-      digitalWrite(OFF_PIN, 0);
-      digitalWrite(ON_PIN, 1);
-    } else {
-      heaterState = LOW;
-      digitalWrite(OFF_PIN, 1);
-      digitalWrite(ON_PIN, 0);
-    }
+  if (dew > temperature - HYSTERESIS) {
+    heaterState = HIGH;
+    digitalWrite(OFF_PIN, 0);
+    digitalWrite(ON_PIN, 1);
+  } else {
+    heaterState = LOW;
+    digitalWrite(OFF_PIN, 1);
+    digitalWrite(ON_PIN, 0);
+  }
   // DISPLAY DATA
   Serial.print(DHT.humidity, 1);
   Serial.print(",\t");
@@ -76,66 +77,66 @@ void loop()
 //
 double dewPoint(double celsius, double humidity)
 {
-    // (1) Saturation Vapor Pressure = ESGG(T)
-    double RATIO = 373.15 / (273.15 + celsius);
-    double RHS = -7.90298 * (RATIO - 1);
-    RHS += 5.02808 * log10(RATIO);
-    RHS += -1.3816e-7 * (pow(10, (11.344 * (1 - 1/RATIO ))) - 1) ;
-    RHS += 8.1328e-3 * (pow(10, (-3.49149 * (RATIO - 1))) - 1) ;
-    RHS += log10(1013.246);
+  // (1) Saturation Vapor Pressure = ESGG(T)
+  double RATIO = 373.15 / (273.15 + celsius);
+  double RHS = -7.90298 * (RATIO - 1);
+  RHS += 5.02808 * log10(RATIO);
+  RHS += -1.3816e-7 * (pow(10, (11.344 * (1 - 1 / RATIO ))) - 1) ;
+  RHS += 8.1328e-3 * (pow(10, (-3.49149 * (RATIO - 1))) - 1) ;
+  RHS += log10(1013.246);
 
-    // factor -3 is to adjust units - Vapor Pressure SVP * humidity
-    double VP = pow(10, RHS - 3) * humidity;
+  // factor -3 is to adjust units - Vapor Pressure SVP * humidity
+  double VP = pow(10, RHS - 3) * humidity;
 
-    // (2) DEWPOINT = F(Vapor Pressure)
-    double T = log(VP/0.61078);   // temp var
-    return (241.88 * T) / (17.558 - T);
+  // (2) DEWPOINT = F(Vapor Pressure)
+  double T = log(VP / 0.61078); // temp var
+  return (241.88 * T) / (17.558 - T);
 }
 
 float getTemp()
 {
-    //returns the temperature from one DS18S20 in DEG Celsius
-    
-    byte data[12];
-    byte addr[8];
-    
-    if ( !ds.search(addr)) {
+  //returns the temperature from one DS18S20 in DEG Celsius
+
+  byte data[12];
+  byte addr[8];
+
+  if ( !ds.search(addr)) {
     //no more sensors on chain, reset search
     ds.reset_search();
     return -1000;
-    }
-    
-    if ( OneWire::crc8( addr, 7) != addr[7]) {
+  }
+
+  if ( OneWire::crc8( addr, 7) != addr[7]) {
     Serial.println("CRC is not valid!");
     return -1000;
-    }
-    
-    if ( addr[0] != 0x10 && addr[0] != 0x28) {
+  }
+
+  if ( addr[0] != 0x10 && addr[0] != 0x28) {
     Serial.print("Device is not recognized");
     return -1000;
-    }
-    
-    ds.reset();
-    ds.select(addr);
-    ds.write(0x44,1); // start conversion, with parasite power on at the end
-    
-    byte present = ds.reset();
-    ds.select(addr);
-    ds.write(0xBE); // Read Scratchpad
-    
-    
-    for (int i = 0; i < 9; i++) { // we need 9 bytes
+  }
+
+  ds.reset();
+  ds.select(addr);
+  ds.write(0x44, 1); // start conversion, with parasite power on at the end
+
+  byte present = ds.reset();
+  ds.select(addr);
+  ds.write(0xBE); // Read Scratchpad
+
+
+  for (int i = 0; i < 9; i++) { // we need 9 bytes
     data[i] = ds.read();
-    }
-    
-    ds.reset_search();
-    
-    byte MSB = data[1];
-    byte LSB = data[0];
-    
-    float tempRead = ((MSB << 8) | LSB); //using two's compliment
-    float TemperatureSum = tempRead / 16;
-    
-    return TemperatureSum;
+  }
+
+  ds.reset_search();
+
+  byte MSB = data[1];
+  byte LSB = data[0];
+
+  float tempRead = ((MSB << 8) | LSB); //using two's compliment
+  float TemperatureSum = tempRead / 16;
+
+  return TemperatureSum;
 
 }
