@@ -8,9 +8,13 @@ int DS18S20_Pin = 8;
 OneWire ds(DS18S20_Pin);
 
 #define DHT22_PIN 6
+#define OFF_PIN 2
+#define ON_PIN 3
 
 void setup()
 {
+  pinMode(OFF_PIN, OUTPUT);
+  pinMode(ON_PIN, OUTPUT);
   Serial.begin(9600);
   Serial.println("DHT TEST PROGRAM ");
   Serial.print("LIBRARY VERSION: ");
@@ -44,10 +48,14 @@ void loop()
 		break;
   }
   // Control heater state
-    if (dew > temperature) {
+    if (dew > temperature - 2.0) {
       heaterState = HIGH;
+      digitalWrite(OFF_PIN, 0);
+      digitalWrite(ON_PIN, 1);
     } else {
       heaterState = LOW;
+      digitalWrite(OFF_PIN, 1);
+      digitalWrite(ON_PIN, 0);
     }
   // DISPLAY DATA
   Serial.print(DHT.humidity, 1);
