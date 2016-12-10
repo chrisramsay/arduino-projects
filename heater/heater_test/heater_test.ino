@@ -32,11 +32,16 @@ void loop()
   int chk = DHT.read22(DHT22_PIN);
   float dew = dewPoint(DHT.temperature, DHT.humidity);
   int heaterState = LOW;
+  int goFlag = LOW;
 
   switch (chk)
   {
     case DHTLIB_OK:
       Serial.print("OK,\t");
+      // Now check DS18B20
+      if (temperature < 85.0 && temperature > -127.0) {
+        goFlag = HIGH;
+      }
       break;
     case DHTLIB_ERROR_CHECKSUM:
       Serial.print("Checksum error,\t");
@@ -48,26 +53,33 @@ void loop()
       Serial.print("Unknown error,\t");
       break;
   }
-  // Control heater state
-  if (dew > temperature - HYSTERESIS) {
-    heaterState = HIGH;
-    digitalWrite(OFF_PIN, 0);
-    digitalWrite(ON_PIN, 1);
+  if (goFlag) {
+    // Control heater state
+    if (dew > temperature - HYSTERESIS) {
+      heaterState = HIGH;
+      digitalWrite(OFF_PIN, 0);
+      digitalWrite(ON_PIN, 1);
+    } else {
+      heaterState = LOW;
+      digitalWrite(OFF_PIN, 1);
+      digitalWrite(ON_PIN, 0);
+    }
+    // DISPLAY DATA
+    Serial.print(DHT.humidity, 1);
+    Serial.print(",\t");
+    Serial.print(DHT.temperature, 1);
+    Serial.print(",\t");
+    Serial.print(dew, 1);
+    Serial.print(",\t");
+    Serial.print(temperature);
+    Serial.print(",\t");
+    Serial.println(heaterState);
   } else {
-    heaterState = LOW;
-    digitalWrite(OFF_PIN, 1);
-    digitalWrite(ON_PIN, 0);
+          heaterState = LOW;
+      digitalWrite(OFF_PIN, 1);
+      digitalWrite(ON_PIN, 0);
+    Serial.println("Safety cut off");
   }
-  // DISPLAY DATA
-  Serial.print(DHT.humidity, 1);
-  Serial.print(",\t");
-  Serial.print(DHT.temperature, 1);
-  Serial.print(",\t");
-  Serial.print(dew, 1);
-  Serial.print(",\t");
-  Serial.print(temperature);
-  Serial.print(",\t");
-  Serial.println(heaterState);
   delay(2500);
 }
 

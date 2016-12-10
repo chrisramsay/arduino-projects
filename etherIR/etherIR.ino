@@ -31,14 +31,6 @@ void setup(void)
   
   // Begin the wire
   Wire.begin();
-  
-  // Server initialisation
-  uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
-  IPAddress myIP(192,168,100,6);
-  Ethernet.begin(mac,myIP);
-
-  // Start Server
-  server.begin();
 }
  
  
