@@ -114,7 +114,7 @@ byte ReadAddr(byte MLXAddress) {
 }
 
 /**
-* Utility function to read temperature from MLX at address MLXAddress
+* Utility function to read temperature from MLX at address
 *
 */
 float ReadTemp(byte address) {

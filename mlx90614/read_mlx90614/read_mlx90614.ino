@@ -4,6 +4,7 @@
 
 byte MLX_one = 0x1D;
 byte MLX_two = 0x2B;
+//byte MLX_n = ;
 
 void setup() {
   Serial.begin(9600);
@@ -18,10 +19,12 @@ void loop() {
     delay(1000);
     ReadTemp(MLX_two);
     delay(1000);
+    //ReadTemp(MLX_n);
+    //delay(1000);
 }
 
 /**
-* Utility function to read temperature from MLX at address MLXAddress
+* Utility function to read temperature from MLX at address
 *
 */
 float ReadTemp(byte address) {
