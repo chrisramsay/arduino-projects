@@ -3,7 +3,7 @@
 #include "i2cmaster.h"
 
 // New slave address
-byte NewMLXAddr = 0x1A;
+byte NewMLXAddr = 0x2B;
 // Uncomment this if you want to change address back to default value (0x5A)
 //byte NewMLXAddr = 0x5A;
 
@@ -127,10 +127,10 @@ float ReadTemp(byte address) {
   if (MLXAddress == 0) {
   	Serial.print("using MLX univeral address");
   } else {
-  	Serial.print("using MLX address: ");
+  	Serial.print("using MLX address ");
   	Serial.print(address, HEX);
-  }
-  Serial.print(", ");
+  };
+  Serial.print(": ");
 
   i2c_start_wait(MLXAddress + I2C_WRITE);
   i2c_write(0x07);

@@ -24,3 +24,11 @@ Setup...
 > [ReadTemp] Read temperature using MLX address: 5A, 18.62 C
 
 ```
+```
+Setup...
+> [ReadTemp] Read temperature using MLX address 1D: 16.22 C
+> [ReadTemp] Read temperature using MLX address 2B: 16.36 C
+> [ReadTemp] Read temperature using MLX address 1D: 16.06 C
+> [ReadTemp] Read temperature using MLX address 2B: 16.26 C
+
+```
