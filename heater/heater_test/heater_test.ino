@@ -54,7 +54,9 @@ void loop()
       break;
   }
   if (goFlag) {
-    // Control heater state
+    // Control heater state - is dew point higher than
+    // surface temp minus hysteresis?
+    // e.g. dew 16, surface '15' (actual 17 - 2 hyst.) -> ON
     if (dew > temperature - HYSTERESIS) {
       heaterState = HIGH;
       digitalWrite(OFF_PIN, 0);
@@ -75,9 +77,9 @@ void loop()
     Serial.print(",\t");
     Serial.println(heaterState);
   } else {
-          heaterState = LOW;
-      digitalWrite(OFF_PIN, 1);
-      digitalWrite(ON_PIN, 0);
+    heaterState = LOW;
+    digitalWrite(OFF_PIN, 1);
+    digitalWrite(ON_PIN, 0);
     Serial.println("Safety cut off");
   }
   delay(2500);
