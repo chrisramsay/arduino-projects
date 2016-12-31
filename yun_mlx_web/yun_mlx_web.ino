@@ -17,6 +17,7 @@ YunServer server;
 //t
 dht DHT;
 int DS18S20_Pin = 10;
+int heaterState = LOW;
 
 //Temperature chip i/o
 OneWire ds(DS18S20_Pin);
@@ -63,7 +64,6 @@ void loop() {
   float temperature = getTemp();
   int chk = DHT.read22(DHT22_PIN);
   float dew = dewPoint(DHT.temperature, DHT.humidity);
-  int heaterState = LOW;
   int goFlag = LOW;
 
   switch (chk)
@@ -118,33 +118,38 @@ void process(YunClient client) {
 void tempCommand(YunClient client) {
   // Read the command
   String mode = client.readStringUntil('\r');
+  float surface = getTemp();
+  float dewpoint = dewPoint(DHT.temperature, DHT.humidity);
   // Switch on mode...
-  // Example: http://arduino.local/arduino/temp/amb
-  if (mode == "amb") {
-    client.print(F("Ambient: "));
-    client.print(readtemp(0x06));
-    client.println();
-  }
-  // Example: http://arduino.local/arduino/temp/obj
-  if (mode == "obj") {
-    client.print(F("Object: "));
-    client.print(readtemp(0x07));
-    client.println();
-  }
   // Example: http://arduino.local/arduino/temp/all
   if (mode == "all") {
-    client.print(F("Ambient: "));
+    client.print(F("Ambient:\t"));
     client.print(readtemp(0x06));
     client.println();
-    client.print(F("Object: "));
+    client.print(F("Object:\t\t"));
     client.print(readtemp(0x07));
     client.println();
-    client.print(F("Surface: "));
-    client.print(getTemp());
+    client.print(F("Surface:\t"));
+    client.print(surface);
     client.println();
-    client.print(F("Dewpoint: "));
-    client.print(dewPoint(DHT.temperature, DHT.humidity));
-    client.println();  
+    client.print(F("DHT temp:\t"));
+    client.print(DHT.temperature);
+    client.println();
+    client.print(F("DHT hum:\t"));
+    client.print(DHT.humidity);
+    client.println();
+    client.print(F("Dew point:\t"));
+    client.print(dewpoint);
+    client.println();
+    client.print(F("Act diff:\t"));
+    client.print(surface - dewpoint);
+    client.println();
+    client.print(F("Hyst diff:\t"));
+    client.print(surface - dewpoint - HYSTERESIS);
+    client.println();
+    client.print(F("Heater:\t\t"));
+    client.print(heaterState);
+    client.println(); 
   }
   // Example: http://arduino.local/arduino/temp/csv
   if (mode == "csv") {
@@ -152,7 +157,21 @@ void tempCommand(YunClient client) {
     client.print(",");
     client.print(readtemp(0x07));
     client.print(",");
-    client.println();
+    client.print(surface);
+    client.print(",");
+    client.print(DHT.temperature);
+    client.print(",");
+    client.print(DHT.humidity);
+    client.print(",");
+    client.print(dewpoint);
+    client.print(",");
+    client.print(surface - dewpoint);
+    client.print(",");
+    client.print(surface - dewpoint - HYSTERESIS);
+    client.print(",");
+    client.print(heaterState);
+    client.print(",");
+    client.println(); 
   }
 }
 
