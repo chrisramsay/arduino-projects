@@ -16,15 +16,15 @@ YunServer server;
 
 //t
 dht DHT;
-int DS18S20_Pin = 10;
+int DS18S20_Pin = 5;
 int heaterState = LOW;
 
 //Temperature chip i/o
 OneWire ds(DS18S20_Pin);
 
-#define DHT22_PIN 6
-#define OFF_PIN 11
-#define ON_PIN 12
+#define DHT22_PIN 4
+#define OFF_PIN 6
+#define ON_PIN 7
 #define HYSTERESIS 2.0
 //t
 
@@ -123,13 +123,13 @@ void tempCommand(YunClient client) {
   // Switch on mode...
   // Example: http://arduino.local/arduino/temp/all
   if (mode == "all") {
-    client.print(F("Ambient:\t"));
+    client.print(F("Sensor:\t\t"));
     client.print(readtemp(0x06));
     client.println();
-    client.print(F("Object:\t\t"));
+    client.print(F("Sky:\t\t"));
     client.print(readtemp(0x07));
     client.println();
-    client.print(F("Surface:\t"));
+    client.print(F("Reflector:\t"));
     client.print(surface);
     client.println();
     client.print(F("DHT temp:\t"));
@@ -153,6 +153,7 @@ void tempCommand(YunClient client) {
   }
   // Example: http://arduino.local/arduino/temp/csv
   if (mode == "csv") {
+    client.println("Sensor, Sky, Reflector, DHT temp, DHT hum, Dew point, Act diff, Hyst diff, Heater,");
     client.print(readtemp(0x06));
     client.print(",");
     client.print(readtemp(0x07));
