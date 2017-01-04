@@ -6,8 +6,10 @@
 #include <YunServer.h>
 #include <YunClient.h>
 //t
-#include <dht.h>
+//#include <dht.h>
 #include <OneWire.h>
+#include <Wire.h>
+#include "SparkFunHTU21D.h"
 //t
 
 // Listen on default port 5555, the webserver on the Yun
@@ -15,14 +17,15 @@
 YunServer server;
 
 //t
-dht DHT;
+HTU21D myHumidity;
+//dht DHT;
 int DS18S20_Pin = 5;
 int heaterState = LOW;
 
 //Temperature chip i/o
 OneWire ds(DS18S20_Pin);
 
-#define DHT22_PIN 4
+//#define DHT22_PIN 4
 #define OFF_PIN 6
 #define ON_PIN 7
 #define HYSTERESIS 2.0
@@ -62,25 +65,26 @@ void loop() {
 
 //t
   float temperature = getTemp();
-  int chk = DHT.read22(DHT22_PIN);
-  float dew = dewPoint(DHT.temperature, DHT.humidity);
+  //int chk = DHT.read22(DHT22_PIN);
+  //float dew = dewPoint(DHT.temperature, DHT.humidity);
+  float dew = dewPoint(myHumidity.readTemperature(), myHumidity.readHumidity());
   int goFlag = LOW;
 
-  switch (chk)
-  {
-    case DHTLIB_OK:
+  //switch (chk)
+  //{
+    //case DHTLIB_OK:
       // Now check DS18B20
       if (temperature < 85.0 && temperature > -127.0) {
         goFlag = HIGH;
       }
-      break;
-    case DHTLIB_ERROR_CHECKSUM:
-      break;
-    case DHTLIB_ERROR_TIMEOUT:
-      break;
-    default:
-      break;
-  }
+      //break;
+    //case DHTLIB_ERROR_CHECKSUM:
+      //break;
+    //case DHTLIB_ERROR_TIMEOUT:
+     // break;
+    //default:
+      //break;
+  //}
   if (goFlag) {
     // Control heater state - is dew point higher than
     // surface temp minus hysteresis?
@@ -119,7 +123,8 @@ void tempCommand(YunClient client) {
   // Read the command
   String mode = client.readStringUntil('\r');
   float surface = getTemp();
-  float dewpoint = dewPoint(DHT.temperature, DHT.humidity);
+  //float dewpoint = dewPoint(DHT.temperature, DHT.humidity);
+  float dewpoint = dewPoint(myHumidity.readTemperature(), myHumidity.readHumidity());
   // Switch on mode...
   // Example: http://arduino.local/arduino/temp/all
   if (mode == "all") {
@@ -133,10 +138,12 @@ void tempCommand(YunClient client) {
     client.print(surface);
     client.println();
     client.print(F("DHT temp:\t"));
-    client.print(DHT.temperature);
+    //client.print(DHT.temperature);
+    client.print(myHumidity.readTemperature());
     client.println();
     client.print(F("DHT hum:\t"));
-    client.print(DHT.humidity);
+    //client.print(DHT.humidity);
+    client.print(myHumidity.readHumidity());
     client.println();
     client.print(F("Dew point:\t"));
     client.print(dewpoint);
@@ -160,9 +167,11 @@ void tempCommand(YunClient client) {
     client.print(",");
     client.print(surface);
     client.print(",");
-    client.print(DHT.temperature);
+    //client.print(DHT.temperature);
+    client.print(myHumidity.readTemperature());
     client.print(",");
-    client.print(DHT.humidity);
+    //client.print(DHT.humidity);
+    client.print(myHumidity.readHumidity());
     client.print(",");
     client.print(dewpoint);
     client.print(",");
