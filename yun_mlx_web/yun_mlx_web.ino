@@ -26,6 +26,7 @@ int heaterState = LOW;
 OneWire ds(DS18S20_Pin);
 
 //#define DHT22_PIN 4
+#define CTRL_PIN 4
 #define OFF_PIN 6
 #define ON_PIN 7
 #define HYSTERESIS 2.0
@@ -33,6 +34,7 @@ OneWire ds(DS18S20_Pin);
 
 void setup() {
   //t
+  pinMode(CTRL_PIN, OUTPUT);
   pinMode(OFF_PIN, OUTPUT);
   pinMode(ON_PIN, OUTPUT);
   //t
@@ -91,15 +93,18 @@ void loop() {
     // e.g. dew 16, surface '15' (actual 17 - 2 hyst.) -> ON
     if (dew > temperature - HYSTERESIS) {
       heaterState = HIGH;
+      digitalWrite(CTRL_PIN, 0);
       digitalWrite(OFF_PIN, 0);
       digitalWrite(ON_PIN, 1);
     } else {
       heaterState = LOW;
+      digitalWrite(CTRL_PIN, 1);
       digitalWrite(OFF_PIN, 1);
       digitalWrite(ON_PIN, 0);
     }
   } else {
     heaterState = LOW;
+    digitalWrite(CTRL_PIN, 1);
     digitalWrite(OFF_PIN, 1);
     digitalWrite(ON_PIN, 0);
   }
