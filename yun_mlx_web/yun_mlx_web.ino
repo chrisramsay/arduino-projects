@@ -19,14 +19,14 @@ YunServer server;
 //t
 HTU21D myHumidity;
 //dht DHT;
-int DS18S20_Pin = 5;
+int DS18S20_Pin = 4;
 int heaterState = LOW;
 
 //Temperature chip i/o
 OneWire ds(DS18S20_Pin);
 
-//#define DHT22_PIN 4
-#define CTRL_PIN 4
+//#define DHT22_PIN 5
+#define CTRL_PIN 5
 #define OFF_PIN 6
 #define ON_PIN 7
 #define HYSTERESIS 2.0
